@@ -1,13 +1,9 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 
-int countOperator = 0;
-int countComment = 0;
-int countCapital = 0;
-int countID = 0;
-int countLiteral = 0;
-int countKeyword = 0;
 char    word[50];
 char *keywords[] = {"and", "or", "not", "equal", "less", "nil", "list", "append",
                         "concat", "set", "def", "for", "if", "exit", "load", "display", "true", "false"};
@@ -19,6 +15,19 @@ char *TOKEN_operator[] = {"OP_PLUS", "OP_MINUS", "OP_DIV", "OP_MULT", "OP_OP", "
 int KEYWORD_NUM = 18;
 int OPERATOR_NUM = 7;
 int Flag_key = 0;
+//declaration of variables and constants
+
+int isNumeric(const char *str) {
+    while (*str) {
+        if (!isdigit(*str)) {
+            return 0; // return 0 if a non-digit character is found
+        }
+        str++;
+    }
+    return 1; // return 1 if all characters are digits
+}
+
+
 %}
 
 %%
@@ -26,7 +35,7 @@ int Flag_key = 0;
 [0-9]+[b][0-9]+ { printf("division: %s VALUEF \n", word); }
 [a-z]    { strcat(word, yytext); }
 [A-Z]    { strcat(word, yytext); }
-[0-9]     { strcat(word, yytext); }
+[0-9]     { strcat(word, yytext); }//concanate when it sees alphanumritical ccharss
 [^a-zA-Z1-9] { 
                 if(strlen(word) > 0)
                 {
@@ -36,12 +45,15 @@ int Flag_key = 0;
                             printf("keyword: %s %s\n", word, TOKEN_keywords[i]);
                             Flag_key = 1;
                         }
-                    if(!Flag_key){
+                    if(isNumeric(word))
+                        printf("integer: %s VALUEINT \n", word);
+                    else if(!Flag_key){
                         if(((word[0] >= 65) && (word[0] <= 90)) || ((word[0] >= 97) && (word[0] <= 122)) || word[0] == '_')
                             printf("İdientifier: %s IDENTIFIER \n", word);
-                        else
+                        else{
                             printf("SYNTAX_ERROR: %s cannot be tokenized \n", word);
-
+                            exit(1);
+                            }   
                     }
 
                     Flag_key = 0;
@@ -59,14 +71,23 @@ int Flag_key = 0;
 int yywrap(){}
 int main(){
 
-
-yylex();
-printf("\nNumber of comment "
-	"in the given input: %d\n", countComment);
-printf("\nNumber of operator "
-	"in the given input: %d\n", countOperator);
-printf("\nNumber of keyword "
-	"in the given input: %d\n", countKeyword);
-
-return 0;
+    yylex();
+    return 0;
 }
+
+
+/*
+GETS WRONG WHEN YOU ENTER SPECİAL CHARATCER:
+
+$aa
+
+
+FILE AS INPUT HAVENT IMPLEMENTED:
+input.txt
+
+COMMENT IMPLEMENTATION SHOULD BE MODIFY:
+soner TERMINATES IMMEDTIATLY
+a;;
+deneme;;
+*/
+

@@ -1,5 +1,6 @@
+#line 2 "lex.yy.c"
 
-#line 3 "lex.yy.c"
+#line 4 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -447,13 +448,9 @@ char *yytext;
 #line 2 "myFirstLexer.l"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 
-int countOperator = 0;
-int countComment = 0;
-int countCapital = 0;
-int countID = 0;
-int countLiteral = 0;
-int countKeyword = 0;
 char    word[50];
 char *keywords[] = {"and", "or", "not", "equal", "less", "nil", "list", "append",
                         "concat", "set", "def", "for", "if", "exit", "load", "display", "true", "false"};
@@ -465,8 +462,21 @@ char *TOKEN_operator[] = {"OP_PLUS", "OP_MINUS", "OP_DIV", "OP_MULT", "OP_OP", "
 int KEYWORD_NUM = 18;
 int OPERATOR_NUM = 7;
 int Flag_key = 0;
-#line 469 "lex.yy.c"
-#line 470 "lex.yy.c"
+//declaration of variables and constants
+
+int isNumeric(const char *str) {
+    while (*str) {
+        if (!isdigit(*str)) {
+            return 0; // return 0 if a non-digit character is found
+        }
+        str++;
+    }
+    return 1; // return 1 if all characters are digits
+}
+
+
+#line 479 "lex.yy.c"
+#line 480 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -683,9 +693,9 @@ YY_DECL
 		}
 
 	{
-#line 24 "myFirstLexer.l"
+#line 33 "myFirstLexer.l"
 
-#line 689 "lex.yy.c"
+#line 699 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -744,33 +754,33 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 25 "myFirstLexer.l"
+#line 34 "myFirstLexer.l"
 {printf("comment: %s COMMENT\n", word);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 26 "myFirstLexer.l"
+#line 35 "myFirstLexer.l"
 { printf("division: %s VALUEF \n", word); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 27 "myFirstLexer.l"
+#line 36 "myFirstLexer.l"
 { strcat(word, yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 28 "myFirstLexer.l"
+#line 37 "myFirstLexer.l"
 { strcat(word, yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 29 "myFirstLexer.l"
-{ strcat(word, yytext); }
+#line 38 "myFirstLexer.l"
+{ strcat(word, yytext); }//concanate when it sees alphanumritical ccharss
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 30 "myFirstLexer.l"
+#line 39 "myFirstLexer.l"
 { 
                 if(strlen(word) > 0)
                 {
@@ -780,12 +790,15 @@ YY_RULE_SETUP
                             printf("keyword: %s %s\n", word, TOKEN_keywords[i]);
                             Flag_key = 1;
                         }
-                    if(!Flag_key){
+                    if(isNumeric(word))
+                        printf("integer: %s VALUEINT \n", word);
+                    else if(!Flag_key){
                         if(((word[0] >= 65) && (word[0] <= 90)) || ((word[0] >= 97) && (word[0] <= 122)) || word[0] == '_')
                             printf("İdientifier: %s IDENTIFIER \n", word);
-                        else
+                        else{
                             printf("SYNTAX_ERROR: %s cannot be tokenized \n", word);
-
+                            exit(1);
+                            }   
                     }
 
                     Flag_key = 0;
@@ -799,10 +812,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 57 "myFirstLexer.l"
+#line 69 "myFirstLexer.l"
 ECHO;
 	YY_BREAK
-#line 806 "lex.yy.c"
+#line 819 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1807,19 +1820,30 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 57 "myFirstLexer.l"
+#line 69 "myFirstLexer.l"
 
 
+int yywrap(){}
 int main(){
 
-
-yylex();
-printf("\nNumber of comment "
-	"in the given input: %d\n", countComment);
-printf("\nNumber of operator "
-	"in the given input: %d\n", countOperator);
-printf("\nNumber of keyword "
-	"in the given input: %d\n", countKeyword);
-
-return 0;
+    yylex();
+    return 0;
 }
+
+
+/*
+GETS WRONG WHEN YOU ENTER SPECİAL CHARATCER:
+
+$aa
+
+
+FILE AS INPUT HAVENT IMPLEMENTED:
+input.txt
+
+COMMENT IMPLEMENTATION SHOULD BE MODIFY:
+soner TERMINATES IMMEDTIATLY
+a;;
+deneme;;
+*/
+
+
